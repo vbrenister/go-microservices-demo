@@ -10,10 +10,8 @@
 
 ### Run the application
 - Clone the repository
-- Run `make up` from the `project` directory in order to create docker images and run the backend services
-- Run `make start` to start the frontend service
+- Run `make start_all` from the `project` directory in order to create docker images and run the backend services
 - Open your browser and navigate to `http://localhost:80`
 
 ### Stop the application
-- Run `make down` from the `project` directory in order to stop and remove the docker containers
-- Run `make stop` to stop the frontend service
+- Run `make stop_all` from the `project` directory in order to stop and remove the docker containers

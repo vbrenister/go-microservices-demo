@@ -1,10 +1,10 @@
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 
-.PHONY: up up_build down build_broker build_front start stop all stop_all
+.PHONY: up_back up_build down_back build_broker build_front start_front stop_front start_all stop_all
 
 ## up: starts all containers in the background without forcing build
-up:
+up_back:
 	@echo "Starting Docker images..."
 	docker-compose up -d
 	@echo "Docker images started!"
@@ -18,7 +18,7 @@ up_build: build_broker
 	@echo "Docker images built and started!"
 
 ## down: stop docker compose
-down:
+down_back:
 	@echo "Stopping docker compose..."
 	docker-compose down
 	@echo "Done!"
@@ -36,18 +36,18 @@ build_front:
 	@echo "Done!"
 
 ## start: starts the front end
-start: build_front
+start_front: build_front
 	@echo "Starting front end"
 	cd ../front-end && ./${FRONT_END_BINARY} &
 
 ## stop: stop the front end
-stop:
+stop_front:
 	@echo "Stopping front end..."
 	@-pkill -SIGTERM -f "./${FRONT_END_BINARY}"
 	@echo "Stopped front end!"
 
 ## all: runs both backend and frontend
-all: up start
+start_all: up_back start_front
 
 ## stop_all: stops both backend and frontend
-stop_all: stop down
+stop_all: stop_front down_back
