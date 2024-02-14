@@ -3,7 +3,6 @@ FROM golang:1.22-alpine as builder
 RUN mkdir /app
 
 COPY . /app
-COPY ../common /app/common
 
 WORKDIR /app
 

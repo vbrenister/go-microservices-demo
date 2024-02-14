@@ -12,8 +12,6 @@ func (app *Config) routes() http.Handler {
 	mux := chi.NewRouter()
 
 	mux.Use(middleware.Logger)
-	mux.Use(middleware.Heartbeat("/ping"))
-
 	mux.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -23,8 +21,9 @@ func (app *Config) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	mux.Post("/", app.Broker)
-	mux.Post("/handle", app.HandleSumbission)
+	mux.Use(middleware.Heartbeat("/ping"))
+
+	mux.Post("/log", app.WriteLog)
 
 	return mux
 }

@@ -65,9 +65,9 @@ func (u *User) GetByEmail(email string) (*User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := "SELECT id, email, first_name, last_name, user_active, created_at, updated_at FROM users WHERE email = $1"
+	query := "SELECT id, email, first_name, last_name, password, user_active, created_at, updated_at FROM users WHERE email = $1"
 
-	err := db.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.FirstName, &u.LastName, &u.Active, &u.CreatedAt, &u.UpdatedAt)
+	err := db.QueryRowContext(ctx, query, email).Scan(&u.ID, &u.Email, &u.FirstName, &u.LastName, &u.Password, &u.Active, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func (u *User) ResetPassword(password string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	if err != nil {
 		return err
 	}
