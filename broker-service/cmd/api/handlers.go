@@ -16,9 +16,15 @@ type AuthPayload struct {
 	Password string `json:"password"`
 }
 
+type LogPayload struct {
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+
 type RequestPayload struct {
 	Action string      `json:"action"`
 	Auth   AuthPayload `json:"auth,omitempty"`
+	Log    LogPayload  `json:"log,omitempty"`
 }
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
@@ -42,10 +48,51 @@ func (app *Config) HandleSumbission(w http.ResponseWriter, r *http.Request) {
 	switch restPayload.Action {
 	case "auth":
 		app.authenticate(w, restPayload.Auth)
+	case "log":
+		app.log(w, restPayload.Log)
 	default:
 		app.ErroJSON(w, errors.New("unknown action"))
 	}
 
+}
+
+func (app *Config) log(w http.ResponseWriter, a LogPayload) {
+	logServiceUrl := os.Getenv("LOG_SERVICE_URL")
+
+	jsonData, _ := json.MarshalIndent(a, "", "\t")
+
+	response, err := http.Post(fmt.Sprintf("%s/log", logServiceUrl), "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		app.ErroJSON(w, err)
+		return
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusCreated {
+		app.ErroJSON(w, errors.New("error calling log service"))
+		return
+	}
+
+	var logResponse apicommon.JsonResponse
+
+	err = json.NewDecoder(response.Body).Decode(&logResponse)
+	if err != nil {
+		app.ErroJSON(w, err)
+		return
+	}
+
+	if logResponse.Error {
+		app.ErroJSON(w, errors.New(logResponse.Message))
+		return
+	}
+
+	var payload apicommon.JsonResponse
+	payload.Error = false
+	payload.Message = "Event logged"
+	payload.Data = logResponse.Data
+
+	app.WriteJSON(w, http.StatusAccepted, payload)
 }
 
 func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {

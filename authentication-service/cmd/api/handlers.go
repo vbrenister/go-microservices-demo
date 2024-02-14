@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/vbrenister/apicommon"
 )
@@ -32,6 +35,12 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = app.logRequest("auth", fmt.Sprintf("Logged in %s", user.Email))
+	if err != nil {
+		app.ErroJSON(w, err, http.StatusInternalServerError)
+		return
+	}
+
 	payload := apicommon.JsonResponse{
 		Error:   false,
 		Message: fmt.Sprintf("Logged in %s", user.Email),
@@ -39,4 +48,23 @@ func (app *Config) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.WriteJSON(w, http.StatusAccepted, payload)
+}
+
+func (app *Config) logRequest(name string, data string) error {
+	logServiceUrl := os.Getenv("LOG_SERVICE_URL")
+
+	var entry struct {
+		Name string `json:"name"`
+		Data string `json:"data"`
+	}
+
+	entry.Name = name
+	entry.Data = data
+
+	jsonData, err := json.MarshalIndent(entry, "", "\t")
+	if err != nil {
+		return err
+	}
+	_, err = http.Post(fmt.Sprintf("%s/log", logServiceUrl), "application/json", bytes.NewBuffer(jsonData))
+	return err
 }
