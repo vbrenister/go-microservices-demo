@@ -2,13 +2,15 @@ package main
 
 import (
 	"net/http"
+
+	"github.com/vbrenister/apicommon"
 )
 
 func (app *Config) Broker(w http.ResponseWriter, r *http.Request) {
-	payload := jsonResponse{
+	payload := apicommon.JsonResponse{
 		Error:   false,
 		Message: "Hit the broker",
 	}
 
-	_ = app.writeJSON(w, http.StatusAccepted, payload)
+	_ = app.WriteJSON(w, http.StatusAccepted, payload)
 }

@@ -1,7 +1,10 @@
 FRONT_END_BINARY=frontApp
 BROKER_BINARY=brokerApp
 
-.PHONY: up_back up_build down_back build_broker build_front start_front stop_front start_all stop_all
+.PHONY: init_go_work up_back up_build down_back build_broker build_front start_front stop_front start_all stop_all
+
+init_go_work:
+	cd .. && go work init && go work use ./front-end ./broker-service ./authentication
 
 ## up: starts all containers in the background without forcing build
 up_back:

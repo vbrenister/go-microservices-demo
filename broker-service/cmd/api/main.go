@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/vbrenister/apicommon"
 )
 
 const webPort = "80"
 
-type Config struct{}
+type Config struct {
+	apicommon.ServerConfig
+}
 
 func main() {
 	app := Config{}
